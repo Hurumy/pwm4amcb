@@ -1,12 +1,12 @@
 import RPi.GPIO as GPIO
 from time import sleep
-import rospy
+#import #rospy
 import math
 
 class ControllHandle:
 	def __init__(self):
 		self.pi = math.pi
-		rospy.loginfo('ControllHandle start.')
+		#rospy.loginfo('ControllHandle start.')
 		self.neutral_duty = 7.500 # [1]
 		self.neutral_angle = 90.0 # 度数法
 		self.wheel_base = 0.257 # [m]
@@ -24,9 +24,9 @@ class ControllHandle:
 		GPIO.setup(self.pinnum, GPIO.OUT)
 		self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
 		self.pwm.start(self.neutral_duty)
-		rospy.loginfo('サーボモータの傾きを初期化しました。この状態でタイヤをまっすぐにしてください。5秒スリープします。')
+		#rospy.loginfo('サーボモータの傾きを初期化しました。この状態でタイヤをまっすぐにしてください。5秒スリープします。')
 		sleep(5)
-		rospy.loginfo('Initialising ControllHandle is Completed.')
+		#rospy.loginfo('Initialising ControllHandle is Completed.')
 
 	def output(self):
 		self.pwm.ChangeDutyCycle(self.duty)
@@ -45,10 +45,10 @@ class ControllHandle:
 		ang_d = ang_d + self.neutral_angle # ang_dは正負の数なので、中心を設定
 		self.servrot = ang_d * self.servocoef # サーボモータに設定すべき角度(度数法)
 		if self.servrot > self.serv_maxrot:
-			rospy.loginfo('Angle is too big: limited')
+			#rospy.loginfo('Angle is too big: limited')
 			self.servrot = self.serv_maxrot
 		elif self.servrot < self.serv_minrot:
-			rospy.loginfo('Angle is too small: limited')
+			#rospy.loginfo('Angle is too small: limited')
 			self.servrot = self.serv_minrot
 
 	def rot2PWM(self):
@@ -56,10 +56,10 @@ class ControllHandle:
 		# サーボの回転1°あたりのdutyの変化量
 		self.duty = self.servrot * duty_unit
 		if self.duty > self.max_duty:
-			rospy.loginfo('Duty is too big: limited')
+			#rospy.loginfo('Duty is too big: limited')
 			self.duty = self.max_duty
 		elif self.duty < self.min_duty:
-			rospy.loginfo('Duty is too small: limited')
+			#rospy.loginfo('Duty is too small: limited')
 			self.duty = self.min_duty
 		output()
 
@@ -70,5 +70,5 @@ class ControllHandle:
 
 	def handle_stop(self):
 		GPIO.cleanup()
-		rospy.loginfo('ControllHandle is stopped.')
+		#rospy.loginfo('ControllHandle is stopped.')
 		self.pwm.stop() #終了

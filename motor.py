@@ -1,12 +1,12 @@
 import RPi.GPIO as GPIO
 from time import sleep
-import rospy
+#import #rospy
 import math
 
 class ControllMotor:
 	def __init__(self):
 		self.pi = math.pi
-		rospy.loginfo('ControllMotor start.')
+		#rospy.loginfo('ControllMotor start.')
 		self.rev = False
 		self.motor_rpm = 0.063 # wheel size [m]
 		self.gearratio = 8.27
@@ -23,12 +23,12 @@ class ControllMotor:
 		GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
 		GPIO.setup(self.pinnum, GPIO.OUT)
 		self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
-		rospy.loginfo('ESC Calibration start.')
+		#rospy.loginfo('ESC Calibration start.')
 		self.pwm.start(self.neutral_duty)
 		sleep(5)
-		rospy.loginfo('ESCから、1回の長いビープ音がしたことを確認してください。していなければ、再実行してください。')
-		rospy.loginfo('ESC Calibration end.')
-		rospy.loginfo('Initialising ControllMotor Completed.')
+		#rospy.loginfo('ESCから、1回の長いビープ音がしたことを確認してください。していなければ、再実行してください。')
+		#rospy.loginfo('ESC Calibration end.')
+		#rospy.loginfo('Initialising ControllMotor Completed.')
 
 	def output(self):
 		self.pwm.ChangeDutyCycle(self.duty)
@@ -60,10 +60,10 @@ class ControllMotor:
 
 		#速度制約
 		if self.duty > self.max_duty:
-			rospy.loginfo('Speed is too high: limited')
+			#rospy.loginfo('Speed is too high: limited')
 			self.duty = self.max_duty
 		elif self.duty < self.min_duty:
-			rospy.loginfo('Rev Speed is too high: limited')
+			#rospy.loginfo('Rev Speed is too high: limited')
 			self.duty = self.min_duty
 
 	def duty2PWM(self):
@@ -79,7 +79,7 @@ class ControllMotor:
 
 	def motor_stop(self):
 		GPIO.cleanup()
-		rospy.loginfo('ControllMotor is stopped.')
+		#rospy.loginfo('ControllMotor is stopped.')
 		self.pwm.stop() #終了
 
 
