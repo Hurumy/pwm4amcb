@@ -28,29 +28,29 @@ sleep(1)
 input('Enterを押すと、コントローラを開始します。')
 
 while True:
-    char = input()
-    if char == 'w' or char == 'W':
-        velocity = speed
-        omega = angle
-    elif char == 's' or char == 'S':
-        velocity = bre
-        omega = angle
-    elif char == 'a' or char == 'A':
-        velocity = speed
-        angle = angle - rot
-        omega = angle
-    elif char == 'd' or char == 'D':
-        velocity = speed
-        angle = angle + rot
-        omega = angle
-    elif char == 'r' or char == 'R':
-        speed = speed + acc
-        velocity = speed
-        omega = angle
-    elif char == 'f' or char == 'F':
-        speed = speed - acc
-        velocity = speed
-        omega = angle
+	char = input()
+	if char == 'w' or char == 'W':
+		velocity = speed
+		omega = angle
+	elif char == 's' or char == 'S':
+		velocity = bre
+		omega = angle
+	elif char == 'a' or char == 'A':
+		velocity = speed
+		angle = angle - rot
+		omega = angle
+	elif char == 'd' or char == 'D':
+		velocity = speed
+		angle = angle + rot
+		omega = angle
+	elif char == 'r' or char == 'R':
+		speed = speed + acc
+		velocity = speed
+		omega = angle
+	elif char == 'f' or char == 'F':
+		speed = speed - acc
+		velocity = speed
+		omega = angle
 	print("velocity: ", velocity)
 	print("omega: ", omega)
 	esc.controll_motor_loop(velocity)
