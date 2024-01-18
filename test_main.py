@@ -32,6 +32,8 @@ while True:
 	esc.controll_motor_loop(velocity)
 	handle.controll_handle_loop(velocity, omega)
 	sleep(3)
+	esc.motor_stop()
+	handle.handle_stop()
 	print("動作終了。ループします。")
 	sleep(1)
 
