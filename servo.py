@@ -8,15 +8,15 @@ class ControllHandle:
         self.pi = math.pi
         rospy.loginfo('ControllHandle start.')
         self.neutral_duty = 7.500 # [1]
-        self.neutral_angle = 90.0
+        self.neutral_angle = 90.0 # 度数法
         self.wheel_base = 0.3 # [m]
         self.servocoef = 1.0
         self.freq = 50 # [Hz]
         self.wheelang = 0 # [rad]
         self.servrot = 0 # [deg]
         self.pinnum = 40 # PWM信号を書き出すピンの番号(BOARD指定)
-        self.serv_maxrot = 120 # 度数法
-        self.serv_minrot = 60 # 度数法
+        self.serv_maxrot = self.neutral_angle + 30.0 # 度数法
+        self.serv_minrot = self.neutral_angle - 30.0 # 度数法
         self.max_duty = 10.0
         self.min_duty = 5.0
         self.duty = float64()
@@ -33,12 +33,6 @@ class ControllHandle:
 
     def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
         # [m/s], [rad/s]
-
-        # 入力が負だった時の対策
-        if linear_vel_x < 0.0:
-            linear_vel_x = -1 * linear_vel_x
-        if omega_z < 0.0:
-            omega_z = -1 * omega_z
         # タイヤ角度の設定
         if linear_vel_x == 0.0:
             self.wheelang = self.wheelang
@@ -48,27 +42,26 @@ class ControllHandle:
     def wheelrot2servrot(self):
         # タイヤの曲がり角とサーボモーターの曲がり角を揃えるための係数などをここでかける
         ang_d = math.degrees(self.wheelang) # 弧度法表記から度数法表記に変換
-        self.servrot = ang_d * self.servocoef # サーボモータの設定角度(度数法)
-        if ang_d > self.serv_maxrot:
+        ang_d = ang_d + self.neutral_angle # ang_dは正負の数なので、中心を設定
+        self.servrot = ang_d * self.servocoef # サーボモータに設定すべき角度(度数法)
+        if self.servrot > self.serv_maxrot:
             rospy.loginfo('Angle is too big: limited')
             self.servrot = self.serv_maxrot
-        elif ang_d < self.serv_minrot:
+        elif self.servrot < self.serv_minrot:
             rospy.loginfo('Angle is too small: limited')
             self.servrot = self.serv_minrot
 
     def rot2PWM(self):
-        duty_unit = (self.max_duty - self.min_duty)/(self.serv_maxrot - self.serv_minrot) # ホイールの回転角度1°あたりのdutyの変化量を求める
+        duty_unit = (self.max_duty - self.min_duty)/(self.serv_maxrot - self.serv_minrot)
+        # サーボの回転1°あたりのdutyの変化量
         self.duty = self.servrot * duty_unit
         if self.duty > self.max_duty:
-            rospy.loginfo('Angle is too big: limited')
+            rospy.loginfo('Duty is too big: limited')
             self.duty = self.max_duty
         elif self.duty < self.min_duty:
-            rospy.loginfo('Angle is too small: limited')
+            rospy.loginfo('Duty is too small: limited')
             self.duty = self.min_duty
-        if self.servrot == 0 or self.wheelang == 0:
-            self.pwm.ChangeDutyCycle(self.neutral_duty)
-        else:
-            output()
+        output()
 
     def controll_handle_loop(self, linear_vel_x, angular_vel_z): # omega[rad/s]
         omega2rot(linear_vel_x, angular_vel_z)
