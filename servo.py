@@ -8,7 +8,9 @@ class ControllHandle:
         self.pi = math.pi
         rospy.loginfo('ControllHandle start.')
         self.neutral_duty = 7.500 # [1]
-        self.neutral_angle = 90
+        self.neutral_angle = 90.0
+        self.wheel_base = 0.3 # [m]
+        self.servocoef = 1.0
         self.freq = 50 # [Hz]
         self.wheelang = 0 # [rad]
         self.servrot = 0 # [deg]
@@ -17,7 +19,7 @@ class ControllHandle:
         self.serv_minrot = 60 # 度数法
         self.max_duty = 10.0
         self.min_duty = 5.0
-        self.duty = Int64()
+        self.duty = float64()
         GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
         GPIO.setup(self.pinnum, GPIO.OUT)
         self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
@@ -29,17 +31,19 @@ class ControllHandle:
     def output(self):
         self.pwm.ChangeDutyCycle(self.duty)
 
-    def omega2rot(self, linear_vel_x, omega): # convert omega to rotate angle
+    def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
         # [m/s], [rad/s]
-        if linear_vel_x <= 0:
-            return 0
-        wheel_base = 0.3 # wheel_base[m]
-        self.wheelang = math.asin(omega * wheel_base / linear_vel_x) #[rad]
+        if linear_vel_x < 0.0:
+            linear_vel_x = -1 * linear_vel_x
+        elif linear_vel_x == 0.0:
+
+        else:
+            self.wheelang = math.asin(omega_z * self.wheel_base / linear_vel_x) #[rad]
 
     def wheelrot2servrot(self):
         # タイヤの曲がり角とサーボモーターの曲がり角を揃えるための係数などをここでかける
         ang_d = math.degrees(self.wheelang) # 弧度法表記から度数法表記に変換
-        self.servrot = ang_d # サーボモータの設定角度(度数法)
+        self.servrot = ang_d * self.servocoef # サーボモータの設定角度(度数法)
         if ang_d > self.serv_maxrot:
             rospy.loginfo('Angle is too big: limited')
             self.servrot = self.serv_maxrot
@@ -61,8 +65,8 @@ class ControllHandle:
         else:
             output()
 
-    def controll_handle_loop(self, linear_vel_x, omega): # omega[rad/s]
-        omega2rot(linear_vel_x, omega)
+    def controll_handle_loop(self, linear_vel_x, angular_vel_z): # omega[rad/s]
+        omega2rot(linear_vel_x, angular_vel_z)
         wheelrot2servrot()
         rot2PWM()
 

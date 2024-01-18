@@ -10,7 +10,7 @@ class ControllMotor:
         self.neutral_duty = 7.500
         self.freq = 50
         self.motor_rpm = Int64()
-        self.duty = Int64()
+        self.duty = float64()
         self.pinnum = 12 # PWM信号を書き出すピンの番号(BOARD指定)
         GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
         GPIO.setup(self.pinnum, GPIO.OUT)
