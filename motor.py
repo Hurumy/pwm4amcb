@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 from time import sleep
+import numpy as np
 #import #rospy
 import math
 
@@ -13,7 +14,7 @@ class ControllMotor:
 		self.neutral_duty = 7.500
 		self.freq = 50
 		self.motor_rpm = Int64()
-		self.duty = float64()
+		self.duty = np.float64()
 		self.max_rpm = 12000
 		self.min_rpm = 0
 		# maxduty != mindutyじゃないとゼロ除算になります
@@ -53,7 +54,7 @@ class ControllMotor:
 		duty_diff = self.motor_rpm / rpm_rate
 		if self.rev == False and self.motor_rpm > 0:
 			self.duty = self.neutral_duty + duty_diff
-		elif self.rev == True and self.motor_rpm > 0
+		elif self.rev == True and self.motor_rpm > 0:
 			self.duty = self.neutral_duty - duty_diff
 		elif self.motor_rpm == 0:
 			self.duty = self.neutral_duty

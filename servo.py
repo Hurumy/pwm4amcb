@@ -1,6 +1,7 @@
 import RPi.GPIO as GPIO
 from time import sleep
 #import #rospy
+import numpy as np
 import math
 
 class ControllHandle:
@@ -19,7 +20,7 @@ class ControllHandle:
 		self.serv_minrot = self.neutral_angle - 30.0 # 度数法
 		self.max_duty = 10.0
 		self.min_duty = 5.0
-		self.duty = float64()
+		self.duty = np.float64(0)
 		GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
 		GPIO.setup(self.pinnum, GPIO.OUT)
 		self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
