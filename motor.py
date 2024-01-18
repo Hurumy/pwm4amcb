@@ -7,10 +7,18 @@ class ControllMotor:
 	def __init__(self):
         self.pi = math.pi
         rospy.loginfo('ControllMotor start.')
+        self.rev = False
+        self.motor_rpm = 0.063 # wheel size [m]
+        self.gearratio = 8.27
         self.neutral_duty = 7.500
         self.freq = 50
         self.motor_rpm = Int64()
         self.duty = float64()
+        self.max_rpm = 12000
+        self.min_rpm = 0
+        # maxduty != mindutyじゃないとゼロ除算になります
+        self.max_duty = self.neutral_duty + 0.8
+        self.min_duty = self.neutral_duty - 0.8
         self.pinnum = 12 # PWM信号を書き出すピンの番号(BOARD指定)
         GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
         GPIO.setup(self.pinnum, GPIO.OUT)
@@ -26,27 +34,36 @@ class ControllMotor:
 
     def vel2rpm(self, linear_vel_x): # convert speed to rpm
         # [m/s]
-        if linear_vel_x <= 0:
-            return 0
-        wheel_size = 0.063 # wheel size [m]
-        wheel_speed = linear_vel_x / (wheel_size * 2 * self.pi) # wheel_speed [1/s]
-        self.motor_rpm = wheel_speed * 8.27 * 60 # gear ratio = 8.27:1
+        # スピードが負ならバックモードをTrueにする
+        if linear_vel_x < 0.0:
+            self.rev = True
+            linear_vel_x = linear_vel_x * -1
+        else:
+            self.rev = False
+        wheel_speed = linear_vel_x / (self.wheel_size * 2.0 * self.pi) # wheel_speed [1/s]
+        # スピードが0ならブレーキをかける
+        if linear_vel_x == 0.0:
+            self.motor_rpm = 0
+        else:
+            self.motor_rpm = wheel_speed * self.gearratio * 60.0
 
     def rpm2duty(self): # convert rpm to duty
-        max_rpm = 12000
-        max_duty = 8.8
-        min_rpm = 0
-        min_duty = self.neutral_duty
-        rpm_rate = (max_rpm-min_rpm)/(max_duty-min_duty) # 1%に対するrpm
-        if self.motor_rpm >= 0:
-            self.duty = self.motor_rpm / rpm_rate + min_duty
+        rpm_rate = (self.max_rpm-self.min_rpm)/(self.max_duty-self.neutral_duty) # 1%に対するrpm
+        duty_diff = self.motor_rpm / rpm_rate
+        if self.rev == False and self.motor_rpm > 0:
+            self.duty = self.neutral_duty + duty_diff
+        elif self.rev == True and self.motor_rpm > 0
+            self.duty = self.neutral_duty - duty_diff
+        elif self.motor_rpm == 0:
+            self.duty = self.neutral_duty
+
         #速度制約
-        if self.duty > max_duty:
+        if self.duty > self.max_duty:
             rospy.loginfo('Speed is too high: limited')
-            self.duty = max_duty
-        elif self.duty < min_duty:
-            rospy.loginfo('Speed is too low: limited')
-            self.duty = min_duty
+            self.duty = self.max_duty
+        elif self.duty < self.min_duty:
+            rospy.loginfo('Rev Speed is too high: limited')
+            self.duty = self.min_duty
 
     def duty2PWM(self):
         if self.motor_rpm == 0:
@@ -62,7 +79,7 @@ class ControllMotor:
     def motor_stop(self):
         GPIO.cleanup()
         rospy.loginfo('ControllMotor is stopped.')
-        self.pwm.stop()#終了
+        self.pwm.stop() #終了
 
 
 
