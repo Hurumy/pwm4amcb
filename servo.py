@@ -62,12 +62,12 @@ class ControllHandle:
 		elif self.duty < self.min_duty:
 			#rospy.loginfo('Duty is too small: limited')
 			self.duty = self.min_duty
-		output()
+		self.output()
 
 	def controll_handle_loop(self, linear_vel_x, angular_vel_z): # omega[rad/s]
-		omega2rot(linear_vel_x, angular_vel_z)
-		wheelrot2servrot()
-		rot2PWM()
+		self.omega2rot(linear_vel_x, angular_vel_z)
+		self.wheelrot2servrot()
+		self.rot2PWM()
 
 	def handle_stop(self):
 		GPIO.cleanup()

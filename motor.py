@@ -9,12 +9,12 @@ class ControllMotor:
 		self.pi = math.pi
 		#rospy.loginfo('ControllMotor start.')
 		self.rev = False
-		self.motor_rpm = 0.063 # wheel size [m]
+		self.wheel_size = 0.063 # wheel size [m]
 		self.gearratio = 8.27
 		self.neutral_duty = 7.500
 		self.freq = 50
-		self.motor_rpm = Int64()
-		self.duty = np.float64()
+		self.motor_rpm = np.int64(0)
+		self.duty = np.float64(0)
 		self.max_rpm = 12000
 		self.min_rpm = 0
 		# maxduty != mindutyじゃないとゼロ除算になります
@@ -71,12 +71,12 @@ class ControllMotor:
 		if self.motor_rpm == 0:
 			self.pwm.ChangeDutyCycle(self.neutral_duty)
 		else:
-			output()
+			self.output()
 
 	def controll_motor_loop(self, vel_x):
-		vel2rpm(vel_x)
-		rpm2duty()
-		duty2PWM()
+		self.vel2rpm(vel_x)
+		self.rpm2duty()
+		self.duty2PWM()
 
 	def motor_stop(self):
 		GPIO.cleanup()
