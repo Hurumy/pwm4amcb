@@ -33,10 +33,15 @@ class ControllHandle:
 
     def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
         # [m/s], [rad/s]
+
+        # 入力が負だった時の対策
         if linear_vel_x < 0.0:
             linear_vel_x = -1 * linear_vel_x
-        elif linear_vel_x == 0.0:
-
+        if omega_z < 0.0:
+            omega_z = -1 * omega_z
+        # タイヤ角度の設定
+        if linear_vel_x == 0.0:
+            self.wheelang = self.wheelang
         else:
             self.wheelang = math.asin(omega_z * self.wheel_base / linear_vel_x) #[rad]
 
