@@ -22,10 +22,11 @@ while True:
 		print("Input Error. velocityは0.0[m/s]になります")
 		velocity = float(0.0)
 	try:
-		omega = float(input('omegaを入力してください(-1/6pi~1/6pi, rad/s): '))
+		omega = float(input('omegaを入力してください(-0.523598~0.523598, rad/s): '))
 	except:
 		print("Input Error. omegaは0.0[rad/s]になります")
 		omega = float(0.0)
+
 	print("入力の通りに3秒間、車体を動作させます。")
 	print("velocity: ", velocity)
 	print("omega: ", omega)
