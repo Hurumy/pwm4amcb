@@ -9,7 +9,7 @@ class ControllHandle:
         rospy.loginfo('ControllHandle start.')
         self.neutral_duty = 7.500 # [1]
         self.neutral_angle = 90.0 # 度数法
-        self.wheel_base = 0.3 # [m]
+        self.wheel_base = 0.257 # [m]
         self.servocoef = 1.0
         self.freq = 50 # [Hz]
         self.wheelang = 0 # [rad]
