@@ -26,6 +26,7 @@ class ControllMotor:
         rospy.loginfo('ESC Calibration start.')
         self.pwm.start(self.neutral_duty)
         sleep(5)
+        rospy.loginfo('ESCから、1回の長いビープ音がしたことを確認してください。していなければ、再実行してください。')
         rospy.loginfo('ESC Calibration end.')
         rospy.loginfo('Initialising ControllMotor Completed.')
 
