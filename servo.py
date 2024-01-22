@@ -7,7 +7,7 @@ import math
 class ControllHandle:
 	def __init__(self):
 		self.math_pi = math.pi
-		self.neutral_pulse = 1200 #[us]
+		self.neutral_pulse = 1350 #[us]
 		self.neutral_angle = 90.0 # 度数法
 		self.wheel_base = 0.257 # [m]
 		self.servocoef = 1.0 #[1]
@@ -15,10 +15,10 @@ class ControllHandle:
 		self.wheelang = np.float64() # [rad]
 		self.servrot = 0 # [deg]
 		self.pinnum = 19 # PWM信号を書き出すピンの番号(GPIO指定)
-		self.serv_maxrot = self.neutral_angle + 30.0 # 度数法[deg]
-		self.serv_minrot = self.neutral_angle - 30.0 # 度数法[deg]
+		self.serv_maxrot = self.neutral_angle + 50.0 # 度数法[deg]
+		self.serv_minrot = self.neutral_angle - 50.0 # 度数法[deg]
 		self.pulse = np.int64() #[us]
-		self.max_pulse = 300 #[us]
+		self.max_pulse = 200 #[us]
 		
 		self.pi = pigpio.pi()
 		self.pi.set_mode(self.pinnum, pigpio.OUTPUT)
@@ -27,6 +27,7 @@ class ControllHandle:
 		sleep(5)
 
 	def output(self):
+		print("self.pulse: %f" % (self.pulse))
 		self.pi.set_servo_pulsewidth(self.pinnum, self.pulse)
 		#sleep(1)
 		#self.pi.set_servo_pulsewidth(self.pinnum, 0)
@@ -57,7 +58,7 @@ class ControllHandle:
 	def rot2PWM(self):
 		pulse_unit = (self.max_pulse*2)/(self.serv_maxrot - self.serv_minrot)
 		# サーボの回転1°あたりのパルス幅の変化量
-		self.pulse = self.servrot * pulse_unit
+		self.pulse = self.servrot * pulse_unit + (self.neutral_pulse - (pulse_unit * self.neutral_angle))
 		if self.pulse > self.max_pulse + self.neutral_pulse:
 			self.pulse = self.max_pulse + self.neutral_pulse
 		elif self.pulse < -self.max_pulse + self.neutral_pulse:
