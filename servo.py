@@ -17,7 +17,7 @@ class ControllHandle:
 		self.pinnum = 19 # PWM信号を書き出すピンの番号(GPIO指定)
 		self.serv_maxrot = self.neutral_angle + 30.0 # 度数法[deg]
 		self.serv_minrot = self.neutral_angle - 30.0 # 度数法[deg]
-		self.pulse = np.Int64() #[us]
+		self.pulse = np.int64() #[us]
 		self.max_pulse = 300 #[us]
 		
 		self.pi = pigpio.pi()

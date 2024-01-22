@@ -13,7 +13,7 @@ class ControllMotor:
 		self.neutral_pulse = 1500
 		#self.freq = 50
 		self.motor_rpm = np.int64(0)
-		self.pulse = np.Int64(0)
+		self.pulse = np.int64(0)
 		self.max_rpm = 6000
 		self.min_rpm = 0
 		self.max_pulse = 200
