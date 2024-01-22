@@ -14,11 +14,11 @@ class ControllMotor:
 		#self.freq = 50
 		self.motor_rpm = np.int64(0)
 		self.pulse = np.int64(0)
-		self.max_rpm = 4000.0
+		self.max_rpm = 5000.0
 		self.min_rpm = 0.0
-		self.max_pulse_plus = 98.193547
+		self.max_pulse_plus = 99.193547
 		self.min_pulse_plus = 83.568976
-		self.max_pulse_minus = 112.818118
+		self.max_pulse_minus = 113.818118
 		self.min_pulse_minus = 104.461221
 		#self.min_pulse = 30
 		self.pinnum = 18 # PWM信号を書き出すピンの番号(BOARD指定)
