@@ -1,7 +1,6 @@
 import motor_hard
 import servo
 import numpy as np
-#import RPi.GPIO as GPIO
 import pigpio
 from time import sleep
 
@@ -34,7 +33,8 @@ while True:
 	print("velocity: ", velocity)
 	print("omega: ", omega)
 	pi = pigpio.pi()
-	print(pi.get_mode(18))
+	print("pin18_mode: %i" % (pi.get_mode(18)))
+	print("pin19_mode: %i" % (pi.get_mode(19)))
 	esc.controll_motor_loop(velocity)
 	handle.controll_handle_loop(velocity, omega)
 	sleep(3)
