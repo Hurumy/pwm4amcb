@@ -7,7 +7,7 @@ import math
 class ControllHandle:
 	def __init__(self):
 		self.math_pi = math.pi
-		self.neutral_pulse = 1500 #[us]
+		self.neutral_pulse = 1200 #[us]
 		self.neutral_angle = 90.0 # 度数法
 		self.wheel_base = 0.257 # [m]
 		self.servocoef = 1.0 #[1]
@@ -28,12 +28,19 @@ class ControllHandle:
 
 	def output(self):
 		self.pi.set_servo_pulsewidth(self.pinnum, self.pulse)
+		#sleep(1)
+		#self.pi.set_servo_pulsewidth(self.pinnum, 0)
 
 	def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
 		# [m/s], [rad/s]
 		# タイヤ角度の設定
 		if linear_vel_x == 0.0:
 			self.wheelang = self.wheelang
+		elif abs(omega_z * self.wheel_base / linear_vel_x) > 1.0000000000000000:
+			if omega_z * self.wheel_base / linear_vel_x > 0.0:
+				self.wheelang = 2.0 * self.math_pi
+			else:
+				self.wheelang = -2.0 * self.math_pi
 		else:
 			self.wheelang = math.asin(omega_z * self.wheel_base / linear_vel_x) #[rad]
 
@@ -55,7 +62,7 @@ class ControllHandle:
 			self.pulse = self.max_pulse + self.neutral_pulse
 		elif self.pulse < -self.max_pulse + self.neutral_pulse:
 			self.pulse = -self.max_pulse + self.neutral_pulse
-		elif self.servrot == neutral_angle:
+		elif self.servrot == self.neutral_angle:
 			self.pulse = self.neutral_pulse
 		self.output()
 

@@ -35,11 +35,11 @@ while True:
 	pi = pigpio.pi()
 	print("pin18_mode: %i" % (pi.get_mode(18)))
 	print("pin19_mode: %i" % (pi.get_mode(19)))
-	esc.controll_motor_loop(velocity)
 	handle.controll_handle_loop(velocity, omega)
+	esc.controll_motor_loop(velocity)
 	sleep(3)
-	esc.controll_motor_loop(0.0)
 	handle.controll_handle_loop(0.0, 0.0)
+	esc.controll_motor_loop(0.0)
 	print("動作終了。ループします。")
 	sleep(1)
 
