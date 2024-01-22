@@ -1,44 +1,33 @@
-#import RPi.GPIO as GPIO
+
 import pigpio
 from time import sleep
-#import #rospy
 import numpy as np
 import math
 
 class ControllHandle:
 	def __init__(self):
 		self.math_pi = math.pi
-		#rospy.loginfo('ControllHandle start.')
-		self.neutral_duty = 7.500 # [1]
+		self.neutral_pulse = 1500 #[us]
 		self.neutral_angle = 90.0 # 度数法
 		self.wheel_base = 0.257 # [m]
-		self.servocoef = 1.0
-		self.freq = 50 # [Hz]
-		self.wheelang = 0 # [rad]
+		self.servocoef = 1.0 #[1]
+		#self.freq = 50 # [Hz]
+		self.wheelang = np.float64() # [rad]
 		self.servrot = 0 # [deg]
-		self.pinnum = 19 # PWM信号を書き出すピンの番号(BOARD指定)
-		self.serv_maxrot = self.neutral_angle + 30.0 # 度数法
-		self.serv_minrot = self.neutral_angle - 30.0 # 度数法
-		self.max_duty = 10.0
-		self.min_duty = 5.0
-		self.duty = np.float64(0)
+		self.pinnum = 19 # PWM信号を書き出すピンの番号(GPIO指定)
+		self.serv_maxrot = self.neutral_angle + 30.0 # 度数法[deg]
+		self.serv_minrot = self.neutral_angle - 30.0 # 度数法[deg]
+		self.pulse = np.Int64() #[us]
+		self.max_pulse = 300 #[us]
 		
 		self.pi = pigpio.pi()
 		self.pi.set_mode(self.pinnum, pigpio.OUTPUT)
-
-		#GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
-		#GPIO.setup(self.pinnum, GPIO.OUT)
-		#self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
-		#self.pwm.start(self.neutral_duty)
-		#rospy.loginfo('サーボモータの傾きを初期化しました。この状態でタイヤをまっすぐにしてください。5秒スリープします。')
-		self.duty = self.neutral_duty
+		self.pulse = self.neutral_pulse
 		self.output()
 		sleep(5)
-		#rospy.loginfo('Initialising ControllHandle is Completed.')
 
 	def output(self):
-		print('output: %i' % int(self.duty*10000))
-		self.pi.hardware_PWM(self.pinnum, self.freq, int(self.duty*10000))
+		self.pi.set_servo_pulsewidth(self.pinnum, self.pulse)
 
 	def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
 		# [m/s], [rad/s]
@@ -54,22 +43,20 @@ class ControllHandle:
 		ang_d = ang_d + self.neutral_angle # ang_dは正負の数なので、中心を設定
 		self.servrot = ang_d * self.servocoef # サーボモータに設定すべき角度(度数法)
 		if self.servrot > self.serv_maxrot:
-			#rospy.loginfo('Angle is too big: limited')
 			self.servrot = self.serv_maxrot
 		elif self.servrot < self.serv_minrot:
-			#rospy.loginfo('Angle is too small: limited')
 			self.servrot = self.serv_minrot
 
 	def rot2PWM(self):
-		duty_unit = (self.max_duty - self.min_duty)/(self.serv_maxrot - self.serv_minrot)
-		# サーボの回転1°あたりのdutyの変化量
-		self.duty = self.servrot * duty_unit
-		if self.duty > self.max_duty:
-			#rospy.loginfo('Duty is too big: limited')
-			self.duty = self.max_duty
-		elif self.duty < self.min_duty:
-			#rospy.loginfo('Duty is too small: limited')
-			self.duty = self.min_duty
+		pulse_unit = (self.max_pulse*2)/(self.serv_maxrot - self.serv_minrot)
+		# サーボの回転1°あたりのパルス幅の変化量
+		self.pulse = self.servrot * pulse_unit
+		if self.pulse > self.max_pulse + self.neutral_pulse:
+			self.pulse = self.max_pulse + self.neutral_pulse
+		elif self.pulse < -self.max_pulse + self.neutral_pulse:
+			self.pulse = -self.min_pulse + self.neutral_pulse
+		elif self.servrot == neutral_angle:
+			self.pulse = self.neutral_pulse
 		self.output()
 
 	def controll_handle_loop(self, linear_vel_x, angular_vel_z): # omega[rad/s]
@@ -78,8 +65,7 @@ class ControllHandle:
 		self.rot2PWM()
 
 	def handle_stop(self):
-		#GPIO.cleanup()
-		#rospy.loginfo('ControllHandle is stopped.')
-		#self.pwm.stop() #終了
+		self.pulse = 0
+		self.output()
 		self.pi.set_mode(self.pinnum, pigpio.INPUT)
 		self.pi.stop()
