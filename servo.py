@@ -54,7 +54,7 @@ class ControllHandle:
 		if self.pulse > self.max_pulse + self.neutral_pulse:
 			self.pulse = self.max_pulse + self.neutral_pulse
 		elif self.pulse < -self.max_pulse + self.neutral_pulse:
-			self.pulse = -self.min_pulse + self.neutral_pulse
+			self.pulse = -self.max_pulse + self.neutral_pulse
 		elif self.servrot == neutral_angle:
 			self.pulse = self.neutral_pulse
 		self.output()
