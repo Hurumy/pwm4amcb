@@ -14,14 +14,19 @@ class ControllMotor:
 		#self.freq = 50
 		self.motor_rpm = np.int64(0)
 		self.pulse = np.int64(0)
-		self.max_rpm = 12000
-		self.min_rpm = 0
-		self.max_pulse = 200
+		self.max_rpm = 4000.0
+		self.min_rpm = 0.0
+		self.max_pulse_plus = 98.193547
+		self.min_pulse_plus = 83.568976
+		self.max_pulse_minus = 112.818118
+		self.min_pulse_minus = 104.461221
 		#self.min_pulse = 30
 		self.pinnum = 18 # PWM信号を書き出すピンの番号(BOARD指定)
 
 		self.pi = pigpio.pi()
 		self.pi.set_mode(self.pinnum, pigpio.OUTPUT)
+		# キャリブレーションのためにニュートラルに設定
+		self.pulse = self.neutral_pulse
 		self.output()
 		sleep(5)
 
@@ -39,14 +44,18 @@ class ControllMotor:
 		wheel_speed = linear_vel_x / (self.wheel_size * 2.0 * self.math_pi) # wheel_speed [1/s]
 		# スピードが0ならブレーキをかける
 		if linear_vel_x == 0.0:
-			self.motor_rpm = 0
+			self.motor_rpm = 0.0
 		else:
 			self.motor_rpm = wheel_speed * self.gearratio * 60.0
 	
 	def rpm2pulse(self):
 		# RPM1あたりのパルス幅を調べる
-		pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse # 正の値のみ考える
-		if self.motor_rpm == 0:
+		# pul_widは必ず正 pulse = neutral_pulse +-(motor_rpm / pul_wid)
+		if self.rev == False:
+			pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse_plus - self.min_pulse_plus
+		else:
+			pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse_minus - self.min_pulse_minus
+		if self.motor_rpm == 0.0:
 			self.pulse = self.neutral_pulse
 		elif self.rev == False:
 			self.pulse = (self.motor_rpm / pul_wid) + self.neutral_pulse
