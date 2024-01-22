@@ -26,6 +26,7 @@ class ControllMotor:
 		sleep(5)
 
 	def output(self):
+		print("motor pulse: %f" % (self.pulse))
 		self.pi.set_servo_pulsewidth(self.pinnum, self.pulse)
 
 	def vel2rpm(self, linear_vel_x): # convert speed to rpm
