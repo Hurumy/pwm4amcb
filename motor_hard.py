@@ -58,9 +58,9 @@ class ControllMotor:
 		if self.motor_rpm == 0.0:
 			self.pulse = self.neutral_pulse
 		elif self.rev == False:
-			self.pulse = (self.motor_rpm / pul_wid) + self.neutral_pulse
+			self.pulse = self.neutral_pulse + (-self.motor_rpm / pul_wid)
 		elif self.rev == True:
-			self.pulse = self.neutral_pulse - (self.motor_rpm / pul_wid)
+			self.pulse = self.neutral_pulse + (self.motor_rpm / pul_wid)
 		self.rev = False
 
 	def controll_motor_loop(self, vel_x):
