@@ -39,7 +39,7 @@ class ControllMotor:
 		# スピードが負ならバックモードをTrueにする
 		if linear_vel_x < 0.0:
 			self.rev = True
-			linear_vel_x = linear_vel_x * -1
+			linear_vel_x = -linear_vel_x
 		else:
 			self.rev = False
 		wheel_speed = linear_vel_x / (self.wheel_size * 2.0 * self.math_pi) # wheel_speed [1/s]
@@ -52,16 +52,14 @@ class ControllMotor:
 	def rpm2pulse(self):
 		# RPM1あたりのパルス幅を調べる
 		# pul_widは必ず正 pulse = neutral_pulse +-(motor_rpm / pul_wid)
-		if self.rev == False:
-			pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse_plus - self.min_pulse_plus
-		else:
-			pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse_minus - self.min_pulse_minus
 		if self.motor_rpm == 0.0:
 			self.pulse = self.neutral_pulse
 		elif self.rev == False:
-			self.pulse = self.neutral_pulse + (-self.motor_rpm / pul_wid)
-		elif self.rev == True:
+			pul_wid = (self.max_rpm - self.min_rpm) / (self.max_pulse_plus - self.min_pulse_plus)
 			self.pulse = self.neutral_pulse + (self.motor_rpm / pul_wid)
+		elif self.rev == True:
+			pul_wid = (self.max_rpm - self.min_rpm) / (self.max_pulse_minus - self.min_pulse_minus)
+			self.pulse = self.neutral_pulse - (self.motor_rpm / pul_wid)
 		self.rev = False
 
 	def controll_motor_loop(self, vel_x):
