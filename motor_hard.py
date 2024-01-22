@@ -45,13 +45,14 @@ class ControllMotor:
 	
 	def rpm2pulse(self):
 		# RPM1あたりのパルス幅を調べる
-		pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse*2
+		pul_wid = (self.max_rpm - self.min_rpm) / self.max_pulse # 正の値のみ考える
 		if self.motor_rpm == 0:
 			self.pulse = self.neutral_pulse
 		elif self.rev == False:
-			self.pulse = (pul_wid / self.motor_rpm) + self.neutral_pulse
+			self.pulse = (self.motor_rpm / pul_wid) + self.neutral_pulse
 		elif self.rev == True:
-			self.pulse = self.neutral_pulse - (pul_wid / self.motor_rpm)
+			self.pulse = self.neutral_pulse - (self.motor_rpm / pul_wid)
+		self.rev = False
 
 	def controll_motor_loop(self, vel_x):
 		self.vel2rpm(vel_x)
