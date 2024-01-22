@@ -3,11 +3,13 @@ import servo
 import numpy as np
 import RPi.GPIO as GPIO
 from time import sleep
+import threading
 
 GPIO.cleanup()
 
 velocity = np.float64(0) #[m/s]
 omega = np.float64(0) #[rad/s]
+char = 'string'
 
 speed = 3.75
 angle = 0
@@ -27,32 +29,44 @@ sleep(1)
 
 input('Enterを押すと、コントローラを開始します。')
 
-while True:
-	char = input()
-	if char == 'w' or char == 'W':
-		velocity = speed
-		omega = angle
-	elif char == 's' or char == 'S':
-		velocity = bre
-		omega = angle
-	elif char == 'a' or char == 'A':
-		velocity = speed
-		angle = angle - rot
-		omega = angle
-	elif char == 'd' or char == 'D':
-		velocity = speed
-		angle = angle + rot
-		omega = angle
-	elif char == 'r' or char == 'R':
-		speed = speed + acc
-		velocity = speed
-		omega = angle
-	elif char == 'f' or char == 'F':
-		speed = speed - acc
-		velocity = speed
-		omega = angle
-	print("velocity: ", velocity)
-	print("omega: ", omega)
-	esc.controll_motor_loop(velocity)
-	handle.controll_handle_loop(velocity, omega)
-	sleep(0.03)
+def input_waiting():
+	while True:
+		char = input()
+		if char == 'w' or char == 'W':
+			velocity = speed
+			omega = angle
+		elif char == 's' or char == 'S':
+			velocity = bre
+			omega = angle
+		elif char == 'a' or char == 'A':
+			velocity = speed
+			angle = angle - rot
+			omega = angle
+		elif char == 'd' or char == 'D':
+			velocity = speed
+			angle = angle + rot
+			omega = angle
+		elif char == 'r' or char == 'R':
+			speed = speed + acc
+			velocity = speed
+			omega = angle
+		elif char == 'f' or char == 'F':
+			speed = speed - acc
+			velocity = speed
+			omega = angle
+
+def controll_car():
+	while True:
+		#print("velocity: ", velocity)
+		#print("omega: ", omega)
+		esc.controll_motor_loop(velocity)
+		handle.controll_handle_loop(velocity, omega)
+		sleep(0.03)
+
+thread_input = threading.Thread(target=input_waiting) 
+thread_output = threading.Thread(target=controll_car)
+
+thread_input.start()
+thread_output.start()
+
+

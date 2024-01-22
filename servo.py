@@ -1,4 +1,5 @@
-import RPi.GPIO as GPIO
+#import RPi.GPIO as GPIO
+import pigpio
 from time import sleep
 #import #rospy
 import numpy as np
@@ -6,7 +7,7 @@ import math
 
 class ControllHandle:
 	def __init__(self):
-		self.pi = math.pi
+		self.math_pi = math.pi
 		#rospy.loginfo('ControllHandle start.')
 		self.neutral_duty = 7.500 # [1]
 		self.neutral_angle = 90.0 # 度数法
@@ -15,22 +16,29 @@ class ControllHandle:
 		self.freq = 50 # [Hz]
 		self.wheelang = 0 # [rad]
 		self.servrot = 0 # [deg]
-		self.pinnum = 40 # PWM信号を書き出すピンの番号(BOARD指定)
+		self.pinnum = 19 # PWM信号を書き出すピンの番号(BOARD指定)
 		self.serv_maxrot = self.neutral_angle + 30.0 # 度数法
 		self.serv_minrot = self.neutral_angle - 30.0 # 度数法
 		self.max_duty = 10.0
 		self.min_duty = 5.0
 		self.duty = np.float64(0)
-		GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
-		GPIO.setup(self.pinnum, GPIO.OUT)
-		self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
-		self.pwm.start(self.neutral_duty)
+		
+		self.pi = pigpio.pi()
+		self.pi.set_mode(self.pinnum, pigpio.OUTPUT)
+
+		#GPIO.setmode(GPIO.BOARD)		# ピンの指定方法を選ぶ
+		#GPIO.setup(self.pinnum, GPIO.OUT)
+		#self.pwm = GPIO.PWM(self.pinnum, self.freq) # PWMのインスタンスを作る
+		#self.pwm.start(self.neutral_duty)
 		#rospy.loginfo('サーボモータの傾きを初期化しました。この状態でタイヤをまっすぐにしてください。5秒スリープします。')
+		self.duty = self.neutral_duty
+		self.output()
 		sleep(5)
 		#rospy.loginfo('Initialising ControllHandle is Completed.')
 
 	def output(self):
-		self.pwm.ChangeDutyCycle(self.duty)
+		print('output: %i' % int(self.duty*10000))
+		self.pi.hardware_PWM(self.pinnum, self.freq, int(self.duty*10000))
 
 	def omega2rot(self, linear_vel_x, omega_z): # convert omega to rotate angle
 		# [m/s], [rad/s]
@@ -70,6 +78,8 @@ class ControllHandle:
 		self.rot2PWM()
 
 	def handle_stop(self):
-		GPIO.cleanup()
+		#GPIO.cleanup()
 		#rospy.loginfo('ControllHandle is stopped.')
-		self.pwm.stop() #終了
+		#self.pwm.stop() #終了
+		self.pi.set_mode(self.pinnum, pigpio.INPUT)
+		self.pi.stop()
